@@ -5,21 +5,13 @@ let socket;
 export default function App() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(["message 1", "message 2"]);
+  const user = "Susan";
   useEffect(() => {
-    console.log("hi");
-    socket = io("http://10.3.13.6:3000", {
-      jsonp: false,
-      agent: "-",
-      pfx: "-",
-      cert: "-",
-      ca: "-",
-      ciphers: "-",
-      rejectUnauthorized: "-",
-      perMessageDeflate: "-",
-    });
+    socket = io("http://10.3.13.6:3000");
     socket.on("chat message", (msg) => {
-      setMessages((messages) => [...messages, msg]);
+      setMessages((messages) => [...messages, user + ": " + msg]);
     });
+    socket.emit("joinRoom", user);
   }, []);
 
   const submitChatMessage = () => {
@@ -27,10 +19,8 @@ export default function App() {
     setMessage("");
   };
 
-  console.log(messages);
-  console.log(message);
   const chatMessages = messages.map((chatMessage) => (
-    <Text key={chatMessage}>{chatMessage}</Text>
+    <Text key={chatMessage + Date.now()}>{chatMessage}</Text>
   ));
 
   return (
@@ -42,6 +32,7 @@ export default function App() {
         autoCorrect={false}
         onChangeText={(chatMessage) => setMessage(chatMessage)}
       ></TextInput>
+      <Text>{`Chat about ${user}'s groceries`}</Text>
       {chatMessages}
     </View>
   );
